@@ -2,7 +2,7 @@ import Question from "../models/Question.js";
 
 export const createQuestion = async (req, res) => {
   try {
-    const { title, description, options } = req.body;
+    const { question, options } = req.body;
 
     const correctCount = options.filter((opt) => opt.isCorrect === true).length;
 
@@ -12,9 +12,9 @@ export const createQuestion = async (req, res) => {
         .json({ message: "There must be exactly ONE correct answer." });
     }
 
-    const question = await Question.create({ title, description, options });
+    const questionDoc = await Question.create({ question, options });
 
-    res.status(201).json(question);
+    res.status(201).json(questionDoc);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -27,7 +27,12 @@ export const getAllQuestion = async (req, res) => {
     if (questions.length === 0)
       return res.status(404).json({ message: "Questions not found!" });
 
-    res.status(200).json(questions);
+    res.status(200).json({
+        data: {
+            count: questions.length,
+            questions: questions
+        }
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -54,7 +59,7 @@ export const deleteQuestion = async (req, res) => {
 
     if (!question)
       return res.status(404).json({ message: "Question is not found" });
-    res.status(200).json({ message: "Question deleted successfully" });
+    res.status(200).json({ message: "Question deleted successfully" , deletedQuestion: question});
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
